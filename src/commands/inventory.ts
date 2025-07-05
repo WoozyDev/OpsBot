@@ -9,16 +9,42 @@ const options = {
     })
 }
 
-const known_common_weapon_names = [
-    'gsr', 'rev', 'mr', 'mr96', 'revolver', 'gsr1911', 'gsr 1911', 'p250', 'duallies', 'mtx', 'dual mtx',
-    'deagle', 'desert eagle', 'xd', 'xd.45', 'xd .45',
-    'mp5', 'mp7', 'mpx', 'vector', 'p90',
-    'fp6', 'super90', 'super 90', 'ksg', 'm1887', 'winchester',
-    'sa58', 'dsa58', 'ar15', 'ar-15', 'm4', 'ak47', 'ak-47', 'hk417', 'hk', 'scar-h', 'scarh', 'scar', 'aug', 'sg 551', 'sg', 'sg551',
-    'trg', 'trg22', 'm14', 'svd', 'sniper', 'uratio',
-    'knife', 'bali', 'balisong', 'tanto', 'remix', 'karambit', 'short sword', 'sword',
-    'dragonmourn', 'dragon', 'dragon sword'
-];
+const known_common_weapon_names = {
+    'gsr 1911': ['gsr', 'gsr 1911', 'gsr1911'],
+    'mr 96': ['rev', 'revolver', 'mr96', 'mr 96'],
+    'p250': ['p250', 'p2'],
+    'dual mtx': ['duallies', 'mtx', 'dual mtx', 'dualmtx'],
+    'deagle': ['desert eagle', 'deagle'],
+    'xd .45': ['xd', 'xd45', 'xd 45', 'xd.45', 'xd .45'],
+    'mp5': ['mp5'],
+    'mp7': ['mp7'],
+    'mpx': ['mpx'],
+    'vector': ['vector'],
+    'p90': ['p90'],
+    'fp6': ['fp6'],
+    'super 90': ['super90', 'super 90'],
+    'ksg': ['ksg'],
+    'm1887': ['winchester', 'm1887'],
+    'sa58': ['dsa58', 'sa58'],
+    'ar-15': ['ar15', 'ar-15'],
+    'm4': ['m4'],
+    'ak-47': ['ak47', 'ak', 'ak-47'],
+    'hk417': ['hk', 'hk 417', 'hk417'],
+    'scar-h': ['scar', 'scarh', 'scar-h'],
+    'aug': ['aug'],
+    'sg 551': ['sg', 'sg551', 'sg 551'],
+    'trg22': ['trg', 'trg22'],
+    'm14': ['m14'],
+    'svd': ['svd'],
+    'uratio': ['sniper', 'uratio'],
+    'knife': ['knife'],
+    'balisong': ['bali', 'balisong'],
+    'tanto': ['tanto'],
+    'karambit': ['karambit'],
+    'remix': ['remix'],
+    'short sword': ['sword', 'short sword'],
+    'dragonmourn': ['dragon', 'dragon sword', 'dragon mourn', 'dragonmourn']
+}
 
 @Declare({
     name: 'inventory',
@@ -41,15 +67,16 @@ export default class InventoryCommand extends Command {
             let groupId = 0;
             let _item = null as ItemDefinition;
 
-            for (let commonWeaponName of known_common_weapon_names) {
-                if (item.toLowerCase().startsWith(commonWeaponName)) {
-                    console.log(commonWeaponName, item.slice(commonWeaponName.length + 1, item.length));
-                    _item = ClientBot.items.find(a => a.id == 3).items.find((a: WeaponSkinDefinition) =>
-                        a.display_header.toLowerCase().includes(commonWeaponName) && a.name.toLowerCase().includes(item.slice(commonWeaponName.length + 1, item.length).toLowerCase())
-                    );
-                    if (!_item) {
-                        groupId = 3;
-                        break;
+            for (let weaponName of Object.keys(known_common_weapon_names)) {
+                for(let commonWeaponName of known_common_weapon_names[weaponName]) {
+                    if (item.toLowerCase().startsWith(commonWeaponName)) {
+                        _item = ClientBot.items.find(a => a.id == 3).items.find((a: WeaponSkinDefinition) =>
+                            a.display_header.toLowerCase() == weaponName && a.name.toLowerCase().includes(item.slice(commonWeaponName.length + 1, item.length).toLowerCase())
+                        );
+                        if (!_item) {
+                            groupId = 3;
+                            break;
+                        }
                     }
                 }
             }
