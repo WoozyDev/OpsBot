@@ -16,7 +16,6 @@ ranked² - You cannot grind your in-game rank through this bot, this is a simula
 - trading system
 - inventory system
 
-
 # What's done and not done
 - economy system [❌]
 - mission system [❌]
@@ -24,3 +23,7 @@ ranked² - You cannot grind your in-game rank through this bot, this is a simula
 - market system [❌]
 - trading system [❌]
 - inventory system [❌]
+
+# Things I won't share
+- Critical Ops Items file, as it may contain skins that are not released.
+- Skin images, as it may contain skins that are not released.
