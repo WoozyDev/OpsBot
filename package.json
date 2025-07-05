@@ -1,0 +1,20 @@
+{
+  "name": "opsbot",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@types/node": "^24.0.10",
+    "axios": "^1.10.0",
+    "dotenv": "^17.0.1",
+    "fs": "^0.0.1-security",
+    "mongodb": "^6.17.0",
+    "seyfert": "^3.2.4"
+  }
+}
