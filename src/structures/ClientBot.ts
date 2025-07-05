@@ -2,8 +2,9 @@ import { Collection, Db, MongoClient } from "mongodb";
 import { Client } from "seyfert";
 import { Market } from "../schemas/Market";
 import MarketSystem from "../systems/MarketSystem";
-import { GroupIds, Item } from "../types";
+import { GroupIds, Item, MarketState } from "../types";
 import { User } from "../schemas/User";
+import { readFileSync } from "fs";
 
 export default class ClientBot extends Client<true> {
     static instance: ClientBot;
@@ -18,6 +19,9 @@ export default class ClientBot extends Client<true> {
     constructor() {
         super();
         ClientBot.instance = this;
+        ClientBot.items = JSON.parse(readFileSync(`./item_definitions.json`, 'utf8'))['item_types'];
+        console.log(`Items: Loaded`);
+
         (new MongoClient(process.env.MONGO_URL, {
             serverApi: {
                 strict: false,
@@ -28,10 +32,20 @@ export default class ClientBot extends Client<true> {
             console.log(`Database: connected`);
             ClientBot.db = client.db('opsbot');
             ClientBot._users = ClientBot.db.collection('users');
-            ClientBot.db.collection('market').findOne().then((market: any) => {
+            ClientBot.db.collection<Market>('market').findOne().then(async market => {
+                if(!market) {
+                    market = {
+                        _id: "MARKET_DATA",
+                        state: MarketState.OPEN,
+                        buy_requests: [],
+                        sell_requests: []
+                    };
+                    await ClientBot.db.collection<Market>("market").insertOne(market);
+                }
                 console.log(`Market: fetched`);
                 ClientBot.market = new MarketSystem(market);
                 ClientBot.market.init();
+                console.log(`Market: Loaded`);
             });
         });
     }

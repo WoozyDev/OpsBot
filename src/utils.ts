@@ -58,5 +58,27 @@ export default {
         }
 
         return null;
+    },
+    get_category_name: (group_id: GroupIds) => {
+        switch(group_id) {
+            case GroupIds.Currency:
+                return 'Currencies';
+            case GroupIds.WeaponSkin:
+                return 'Weapons';
+            case GroupIds.Emblem:
+                return 'Emblems';
+            case GroupIds.WeaponAnimation:
+                return 'Animations';
+            case GroupIds.Case:
+                return 'Cases';
+            case GroupIds.GloveSkin:
+                return 'Gloves';
+            case GroupIds.Agent:
+                return 'Agent';
+            case GroupIds.Key:
+                return 'Keys';
+            default:
+                return 'Unknown'
+        }
     }
 }

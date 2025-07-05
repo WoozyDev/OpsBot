@@ -235,3 +235,68 @@ export class KeyDefinition implements ItemDefinition
 }
 
 export type Item = ItemDefinition | CurrencyDefinition | WeaponSkinDefinition | EmblemDefinition | WeaponAnimationDefinition | CaseDefinition | GloveSkinDefinition | AgentDefinition | KeyDefinition;
+
+export type UserBasicInfo = {
+    userID: number,
+    name: string,
+    userType: number,
+    iconID: number,
+    playerLevel: {
+        level: number,
+        current_xp: number,
+        next_level_xp: number
+    },
+    lastSeenTime: string
+}
+
+export type UserSettings = {
+    blockFriendRequests: boolean,
+    block_clan_requests: bigint,
+    equipped_emblem?: number
+}
+
+export type UserStat = {
+    k: number,
+    d: number,
+    a: number,
+    w: number,
+    l: number
+};
+
+export type UserStats = {
+    seasonal_stats: {
+        season: number,
+        ranked: UserStat,
+        casual: UserStat,
+        custom: UserStat
+    }[];
+    ranked: {
+        placement_matches_left: number,
+        highest_rank: number,
+        global_position?: number,
+        mmr: number,
+        rank: number
+    }
+}
+
+export type PlayerData = {
+    basicInfo: UserBasicInfo,
+    userSettings: UserSettings,
+    friendStatus: number,
+    stats: UserStats,
+    ban?: {
+        Type: number,
+        Reason: number,
+        SecondsLeft: number
+    } | null;
+    clan?: {
+        basicInfo: {
+            name: string;
+            tag: string;
+        };
+        id: string;
+        memberRank: number;
+    }
+}
+
+export type SearchResponse = PlayerData[];
