@@ -2,7 +2,57 @@ import { User } from "seyfert";
 import ClientBot from "./structures/ClientBot"
 import { AgentDefinition, CaseDefinition, CurrencyDefinition, EmblemDefinition, GloveSkinDefinition, GroupIds, Item, KeyDefinition, WeaponAnimationDefinition, WeaponSkinDefinition } from "./types";
 
+const known_common_weapon_names = {
+    'gsr 1911': ['gsr', 'gsr 1911', 'gsr1911'],
+    'mr 96': ['rev', 'revolver', 'mr96', 'mr 96'],
+    'p250': ['p250', 'p2'],
+    'dual mtx': ['duallies', 'mtx', 'dual mtx', 'dualmtx'],
+    'deagle': ['desert eagle', 'deagle'],
+    'xd .45': ['xd', 'xd45', 'xd 45', 'xd.45', 'xd .45'],
+    'mp5': ['mp5'],
+    'mp7': ['mp7'],
+    'mpx': ['mpx'],
+    'vector': ['vector'],
+    'p90': ['p90'],
+    'fp6': ['fp6'],
+    'super 90': ['super90', 'super 90'],
+    'ksg': ['ksg'],
+    'm1887': ['winchester', 'm1887'],
+    'sa58': ['dsa58', 'sa58'],
+    'ar-15': ['ar15', 'ar-15'],
+    'm4': ['m4'],
+    'ak-47': ['ak47', 'ak', 'ak-47'],
+    'hk417': ['hk', 'hk 417', 'hk417'],
+    'scar-h': ['scar', 'scarh', 'scar-h'],
+    'aug': ['aug'],
+    'sg 551': ['sg', 'sg551', 'sg 551'],
+    'trg22': ['trg', 'trg22'],
+    'm14': ['m14'],
+    'svd': ['svd'],
+    'uratio': ['sniper', 'uratio'],
+    'knife': ['knife'],
+    'balisong': ['bali', 'balisong'],
+    'tanto': ['tanto'],
+    'kukri': ['kukri'],
+    'pipe wrench': ['pipe', 'pipewrench', 'pipe wrench'],
+    'push daggers': ['pushdaggers', 'daggers', 'push daggers'],
+    'tactical axe': ['axe', 'tacticalaxe', 'tactical axe'],
+    'tomahawk': ['tomahawk'],
+    'meat cleaver': ['meatcleaver', 'meat', 'meat cleaver'],
+    'tac-tool': ['tactool', 'kabar', 'tac-tool'],
+    'karambit': ['karambit'],
+    'remix': ['remix'],
+    'trench knife': ['trench', 'trenchknife', 'trench knife'],
+    'short sword': ['sword', 'shortsword', 'short sword'],
+    'dragonmourn': ['dragon', 'dragon sword', 'dragon mourn', 'dragonmourn'],
+    'smoke grenade': ['smoke', 'smokegrenade', 'smoke grenade'],
+    'incendiary grenade': ['incendiary', 'molly', 'incendiarygrenade', 'incendiary grenade'],
+    'flashbang grenade': ['flash', 'flashbang', 'flashbanggrenade', 'flashbang grenade'],
+    'frag grenade': ['hegrenade', 'he grenade', 'frag', 'frag grenade']
+}
+
 export default {
+    known_common_weapon_names,
     get_discord_user: (userId: string): Promise<User> => {
         return new Promise((resolve, reject) => {
             let cachedUser = ClientBot.instance.cache.users.get(userId);

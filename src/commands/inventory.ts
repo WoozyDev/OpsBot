@@ -11,54 +11,7 @@ const options = {
     })
 }
 
-const known_common_weapon_names = {
-    'gsr 1911': ['gsr', 'gsr 1911', 'gsr1911'],
-    'mr 96': ['rev', 'revolver', 'mr96', 'mr 96'],
-    'p250': ['p250', 'p2'],
-    'dual mtx': ['duallies', 'mtx', 'dual mtx', 'dualmtx'],
-    'deagle': ['desert eagle', 'deagle'],
-    'xd .45': ['xd', 'xd45', 'xd 45', 'xd.45', 'xd .45'],
-    'mp5': ['mp5'],
-    'mp7': ['mp7'],
-    'mpx': ['mpx'],
-    'vector': ['vector'],
-    'p90': ['p90'],
-    'fp6': ['fp6'],
-    'super 90': ['super90', 'super 90'],
-    'ksg': ['ksg'],
-    'm1887': ['winchester', 'm1887'],
-    'sa58': ['dsa58', 'sa58'],
-    'ar-15': ['ar15', 'ar-15'],
-    'm4': ['m4'],
-    'ak-47': ['ak47', 'ak', 'ak-47'],
-    'hk417': ['hk', 'hk 417', 'hk417'],
-    'scar-h': ['scar', 'scarh', 'scar-h'],
-    'aug': ['aug'],
-    'sg 551': ['sg', 'sg551', 'sg 551'],
-    'trg22': ['trg', 'trg22'],
-    'm14': ['m14'],
-    'svd': ['svd'],
-    'uratio': ['sniper', 'uratio'],
-    'knife': ['knife'],
-    'balisong': ['bali', 'balisong'],
-    'tanto': ['tanto'],
-    'kukri': ['kukri'],
-    'pipe wrench': ['pipe', 'pipewrench', 'pipe wrench'],
-    'push daggers': ['pushdaggers', 'daggers', 'push daggers'],
-    'tactical axe': ['axe', 'tacticalaxe', 'tactical axe'],
-    'tomahawk': ['tomahawk'],
-    'meat cleaver': ['meatcleaver', 'meat', 'meat cleaver'],
-    'tac-tool': ['tactool', 'kabar', 'tac-tool'],
-    'karambit': ['karambit'],
-    'remix': ['remix'],
-    'trench knife': ['trench', 'trenchknife', 'trench knife'],
-    'short sword': ['sword', 'shortsword', 'short sword'],
-    'dragonmourn': ['dragon', 'dragon sword', 'dragon mourn', 'dragonmourn'],
-    'smoke grenade': ['smoke', 'smokegrenade', 'smoke grenade'],
-    'incendiary grenade': ['incendiary', 'molly', 'incendiarygrenade', 'incendiary grenade'],
-    'flashbang grenade': ['flash', 'flashbang', 'flashbanggrenade', 'flashbang grenade'],
-    'frag grenade': ['hegrenade', 'he grenade', 'frag', 'frag grenade']
-}
+
 
 @Declare({
     name: 'inventory',
@@ -81,8 +34,8 @@ export default class InventoryCommand extends Command {
             let groupId = 0;
             let _item = null as ItemDefinition;
 
-            for (let weaponName of Object.keys(known_common_weapon_names)) {
-                for(let commonWeaponName of known_common_weapon_names[weaponName]) {
+            for (let weaponName of Object.keys(utils.known_common_weapon_names)) {
+                for(let commonWeaponName of utils.known_common_weapon_names[weaponName]) {
                     if (item.toLowerCase().startsWith(commonWeaponName)) {
                         _item = ClientBot.items.find(a => a.id == 3).items.find((a: WeaponSkinDefinition) =>
                             a.display_header.toLowerCase() == weaponName && a.name.toLowerCase().includes(item.slice(commonWeaponName.length + 1, item.length).toLowerCase())
@@ -111,10 +64,10 @@ export default class InventoryCommand extends Command {
             }
 
             // // item found
-            // if (!userData.inventory[groupId.toString()] || !userData.inventory[groupId.toString()][_item.id.toString()]) {
-            //     await context.editOrReply({ content: 'You don\'t have such item in your inventory!' });
-            //     return;
-            // }
+            if (!userData.inventory[groupId.toString()] || !userData.inventory[groupId.toString()][_item.id.toString()]) {
+                await context.editOrReply({ content: 'You don\'t have such item in your inventory!' });
+                return;
+            }
 
             let att = new AttachmentBuilder({ type: 'buffer', filename: 'image.png', resolvable: readFileSync(`./skin_images/${utils.get_folder_id(groupId) == true ? (_item as WeaponSkinDefinition).weapon_id : utils.get_folder_id(groupId)}/${_item.id}.png`) });
 
