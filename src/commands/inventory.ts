@@ -42,12 +42,22 @@ const known_common_weapon_names = {
     'knife': ['knife'],
     'balisong': ['bali', 'balisong'],
     'tanto': ['tanto'],
+    'kukri': ['kukri'],
+    'pipe wrench': ['pipe', 'pipewrench', 'pipe wrench'],
+    'push daggers': ['pushdaggers', 'daggers', 'push daggers'],
+    'tactical axe': ['axe', 'tacticalaxe', 'tactical axe'],
+    'tomahawk': ['tomahawk'],
+    'meat cleaver': ['meatcleaver', 'meat', 'meat cleaver'],
     'tac-tool': ['tactool', 'kabar', 'tac-tool'],
     'karambit': ['karambit'],
     'remix': ['remix'],
     'trench knife': ['trench', 'trenchknife', 'trench knife'],
     'short sword': ['sword', 'shortsword', 'short sword'],
-    'dragonmourn': ['dragon', 'dragon sword', 'dragon mourn', 'dragonmourn']
+    'dragonmourn': ['dragon', 'dragon sword', 'dragon mourn', 'dragonmourn'],
+    'smoke grenade': ['smoke', 'smokegrenade', 'smoke grenade'],
+    'incendiary grenade': ['incendiary', 'molly', 'incendiarygrenade', 'incendiary grenade'],
+    'flashbang grenade': ['flash', 'flashbang', 'flashbanggrenade', 'flashbang grenade'],
+    'frag grenade': ['hegrenade', 'he grenade', 'frag', 'frag grenade']
 }
 
 @Declare({
