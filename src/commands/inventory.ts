@@ -1,7 +1,9 @@
-import { Command, CommandContext, createStringOption, Declare, Embed, Options } from "seyfert";
+import { ActionRow, AttachmentBuilder, Button, Command, CommandContext, createStringOption, Declare, Embed, Options } from "seyfert";
 import ClientBot from "../structures/ClientBot";
-import { ItemDefinition, WeaponSkinDefinition } from "../types";
+import { GroupIds, Item, ItemDefinition, WeaponSkinDefinition } from "../types";
 import utils from "../utils";
+import { readFileSync } from "fs";
+import { ButtonStyle } from "seyfert/lib/types";
 
 const options = {
     item: createStringOption({
@@ -40,9 +42,11 @@ const known_common_weapon_names = {
     'knife': ['knife'],
     'balisong': ['bali', 'balisong'],
     'tanto': ['tanto'],
+    'tac-tool': ['tactool', 'kabar', 'tac-tool'],
     'karambit': ['karambit'],
     'remix': ['remix'],
-    'short sword': ['sword', 'short sword'],
+    'trench knife': ['trench', 'trenchknife', 'trench knife'],
+    'short sword': ['sword', 'shortsword', 'short sword'],
     'dragonmourn': ['dragon', 'dragon sword', 'dragon mourn', 'dragonmourn']
 }
 
@@ -73,7 +77,7 @@ export default class InventoryCommand extends Command {
                         _item = ClientBot.items.find(a => a.id == 3).items.find((a: WeaponSkinDefinition) =>
                             a.display_header.toLowerCase() == weaponName && a.name.toLowerCase().includes(item.slice(commonWeaponName.length + 1, item.length).toLowerCase())
                         );
-                        if (!_item) {
+                        if (_item) {
                             groupId = 3;
                             break;
                         }
@@ -96,24 +100,128 @@ export default class InventoryCommand extends Command {
                 return;
             }
 
-            // item found
-            if (!userData.inventory[groupId.toString()] || !userData.inventory[groupId.toString()][_item.id.toString()]) {
-                await context.editOrReply({ content: 'You don\'t have such item in your inventory!' });
-                return;
-            }
+            // // item found
+            // if (!userData.inventory[groupId.toString()] || !userData.inventory[groupId.toString()][_item.id.toString()]) {
+            //     await context.editOrReply({ content: 'You don\'t have such item in your inventory!' });
+            //     return;
+            // }
+
+            let att = new AttachmentBuilder({ type: 'buffer', filename: 'image.png', resolvable: readFileSync(`./skin_images/${utils.get_folder_id(groupId) == true ? (_item as WeaponSkinDefinition).weapon_id : utils.get_folder_id(groupId)}/${_item.id}.png`) });
 
             let embed = new Embed()
                 .setTitle(utils.get_item_name(groupId, _item.id))
                 .setColor("Green")
                 .setTimestamp()
                 .setFields([
-                    { name: `Category`, value: utils.get_category_name(groupId) }
+                    { name: `Category`, value: utils.get_category_name(groupId), inline: true },
+                    ...(utils.get_inventory_fields(groupId, _item) as any[])
                 ])
-                .setFooter({ text: `` });
+                .setImage(att ? `attachment://image.png` : undefined)
 
-            await context.editOrReply({ embeds: [embed] });
+            await context.editOrReply({ embeds: [embed], files: [att] });
             return;
         }
 
+        let items = [] as [Item, number][];
+
+        for(let _groupId of Object.keys(userData.inventory)) {
+            let group_id = parseInt(_groupId) as GroupIds;
+
+            for(let _itemId of Object.keys(userData.inventory[_groupId])) {
+                let item_id = parseInt(_itemId);
+
+                let item = ClientBot.items.find(a => a.id == group_id).items.find(a => a.id == item_id);
+                if(!item) continue;
+
+                items.push(
+                    [ item, group_id ]
+                );
+            }
+        }
+
+        if(items.length == 0) {
+            await context.editOrReply({ content: 'You don\'t seem to have any items in your inventory. ' });
+            return;
+        }
+
+        let pagination = async (pageIndex: number) => {
+            let [item, groupId] = items[pageIndex];
+            if(!item) return;
+
+            let att = new AttachmentBuilder({ type: 'buffer', filename: 'image.png', resolvable: readFileSync(`./skin_images/${utils.get_folder_id(groupId) == true ? (item as WeaponSkinDefinition).weapon_id : utils.get_folder_id(groupId)}/${item.id}.png`) });
+
+            let embed = new Embed()
+                .setTitle(utils.get_item_name(groupId, item.id))
+                .setColor("Green")
+                .setTimestamp()
+                .setFields([
+                    { name: `Category`, value: utils.get_category_name(groupId), inline: true },
+                    ...(utils.get_inventory_fields(groupId, item) as any[])
+                ])
+                .setImage(att ? `attachment://image.png` : undefined);
+
+            let components = [
+                new ActionRow<Button>()
+                    .setComponents([
+                        new Button()
+                            .setLabel('First')
+                            .setCustomId('first')
+                            .setDisabled(pageIndex == 0)
+                            .setStyle(ButtonStyle.Secondary),
+                        new Button()
+                            .setLabel('Previous')
+                            .setCustomId('prev')
+                            .setDisabled(pageIndex == 0)
+                            .setStyle(ButtonStyle.Secondary),
+                        new Button()
+                            .setLabel('Stop')
+                            .setCustomId('stop')
+                            .setStyle(ButtonStyle.Danger),
+                        new Button()
+                            .setLabel('Next')
+                            .setCustomId('next')
+                            .setDisabled(pageIndex == items.length-1)
+                            .setStyle(ButtonStyle.Danger),
+                        new Button()
+                            .setLabel('Last')
+                            .setCustomId('last')
+                            .setDisabled(pageIndex == items.length-1)
+                            .setStyle(ButtonStyle.Danger)
+                    ])
+            ]
+
+            return await context.editOrReply({ embeds: [embed], files: [att], components }, true);
+        }
+
+        let pageIndex = 0;
+        let msg = await pagination(pageIndex);
+        msg.createComponentCollector({
+                filter: (i) => i.user.id == context.author.id,
+                timeout: 5 * 60 * 1000, // 5 mins
+                onStop: (reason, refresh) => {
+                    if(reason == 'timeout') {
+                        msg.edit({components:[]});
+                    }
+                }
+            }).run(['first', 'prev', 'next', 'last'], (i, stop, refresh) => {
+                switch(i.customId) {
+                    case 'first':
+                        pagination(0);
+                        break;
+                    case 'prev':
+                        pagination(pageIndex--);
+                        break;
+                    case 'stop':
+                        stop('stop', refresh);
+                        msg.edit({components:[]});
+                        break;
+                    case 'next':
+                        pagination(pageIndex++);
+                        break;
+                    case 'last':
+                        pagination(items.length-1);
+                        break;
+                }
+            })
     }
 }

@@ -1,6 +1,6 @@
 import { User } from "seyfert";
 import ClientBot from "./structures/ClientBot"
-import { AgentDefinition, CaseDefinition, CurrencyDefinition, EmblemDefinition, GloveSkinDefinition, GroupIds, KeyDefinition, WeaponAnimationDefinition, WeaponSkinDefinition } from "./types";
+import { AgentDefinition, CaseDefinition, CurrencyDefinition, EmblemDefinition, GloveSkinDefinition, GroupIds, Item, KeyDefinition, WeaponAnimationDefinition, WeaponSkinDefinition } from "./types";
 
 export default {
     get_discord_user: (userId: string): Promise<User> => {
@@ -79,6 +79,88 @@ export default {
                 return 'Keys';
             default:
                 return 'Unknown'
+        }
+    },
+    get_inventory_fields: (group_id: GroupIds, item: Item) => {
+        switch(group_id) {
+            case GroupIds.Currency:
+                var _currency = item as CurrencyDefinition;
+                return [
+                    { name: 'Name', value: _currency.name.split(' ').map(a => a.charAt(0).toUpperCase() + a.slice(1).toLowerCase()).join(' '), inline: true }
+                ];
+            case GroupIds.WeaponSkin:
+                var _weaponSkin = item as WeaponSkinDefinition;
+                return [
+                    { name: 'Weapon', value: _weaponSkin.display_header.split(' ').map(a => a.charAt(0).toUpperCase() + a.slice(1).toLowerCase()).join(' '), inline: true },
+                    { name: 'Name', value: _weaponSkin.display_name.split(' ').map(a => a.charAt(0).toUpperCase() + a.slice(1).toLowerCase()).join(' '), inline: true },
+                    { name: 'For Teams', value: _weaponSkin.faction_target == 1 ? 'CTs' : _weaponSkin.faction_target == 2 ? 'Ts' : _weaponSkin.faction_target == 3 ? 'All Teams' : 'Unknown', inline: true },
+                    { name: 'Tier', value: _weaponSkin.tier, inline: true },
+                    { name: 'Marketplace', value: _weaponSkin.is_marketable ? `✅` : `❌`, inline: true },
+                ]
+            case GroupIds.Emblem:
+                var _emblem = item as EmblemDefinition;
+                return [
+                    { name: 'Name', value: _emblem.display_name.split(' ').map(a => a.charAt(0).toUpperCase() + a.slice(1).toLowerCase()).join(' '), inline: true },
+                    { name: 'Marketplace', value: _emblem.is_marketable ? `✅` : `❌`, inline: true },
+                ];
+            case GroupIds.WeaponAnimation:
+                var _animation = item as WeaponAnimationDefinition;
+                return [
+                    { name: 'Weapon', value: _animation.display_header.split(' ').map(a => a.charAt(0).toUpperCase() + a.slice(1).toLowerCase()).join(' '), inline: true },
+                    { name: 'Name', value: _animation.display_name.split(' ').map(a => a.charAt(0).toUpperCase() + a.slice(1).toLowerCase()).join(' '), inline: true },
+                    { name: 'Type', value: _animation.animation_slot == 5 ? 'Reload' : _animation.animation_slot == 4 ? 'Inspect' : 'Unknown', inline: true },
+                    { name: 'For Teams', value: _animation.faction_target == 1 ? 'CTs' : _weaponSkin.faction_target == 2 ? 'Ts' : _weaponSkin.faction_target == 3 ? 'All Teams' : 'Unknown', inline: true },
+                    { name: 'Marketplace', value: _animation.is_marketable ? `✅` : `❌`, inline: true }
+                ];
+            case GroupIds.Case:
+                var _case = item as CaseDefinition;
+                return [
+                    { name: 'Name', value: _case.display_name.split(' ').map(a => a.charAt(0).toUpperCase() + a.slice(1).toLowerCase()).join(' '), inline: true },
+                    { name: 'Included Tiers', value: _case.roll_data[0].drop_chances.map((a,i) => ([a, `${i+1}`])).filter(a => a[0] != 0 ).map(a => a[1]).join(', '), inline: true },
+                    { name: 'Drop Chances', value: _case.roll_data[0].drop_chances.map((a,i) => `> **Tier ${i+1}:** ${(a/100).toFixed(2)}%`).join('\n'), inline: true },
+                    { name: 'Marketplace', value: _case.is_marketable ? `✅` : `❌`, inline: true },
+                ]
+            case GroupIds.GloveSkin:
+                var _gloveSkin = item as GloveSkinDefinition;
+                return [
+                    { name: 'Name', value: _gloveSkin.display_name.split(' ').map(a => a.charAt(0).toUpperCase() + a.slice(1).toLowerCase()).join(' '), inline: true },
+                    { name: 'For Teams', value: _gloveSkin.faction_target == 1 ? 'CTs' : _weaponSkin.faction_target == 2 ? 'Ts' : _weaponSkin.faction_target == 3 ? 'All Teams' : 'Unknown', inline: true },
+                    { name: 'Tier', value: _gloveSkin.tier, inline: true },
+                    { name: 'Marketplace', value: _gloveSkin.is_marketable ? `✅` : `❌`, inline: true },
+                ]
+            case GroupIds.Agent:
+                var _agent = item as AgentDefinition;
+                return [
+                    { name: 'Name', value: _agent.display_name.split(' ').map(a => a.charAt(0).toUpperCase() + a.slice(1).toLowerCase()).join(' '), inline: true },
+                    { name: 'For Teams', value: _agent.faction_target == 1 ? 'CTs' : _weaponSkin.faction_target == 2 ? 'Ts' : _weaponSkin.faction_target == 3 ? 'All Teams' : 'Unknown', inline: true },
+                    { name: 'Tier', value: _agent.tier, inline: true },
+                    { name: 'Marketplace', value: _agent.is_marketable ? `✅` : `❌`, inline: true },
+                ]
+            case GroupIds.Key:
+                var _key = item as KeyDefinition;
+                return [
+                    { name: 'Name', value: _key.display_name.split(' ').map(a => a.charAt(0).toUpperCase() + a.slice(1).toLowerCase()).join(' '), inline: true },
+                    { name: 'Marketplace', value: _key.is_marketable ? `✅` : `❌`, inline: true },
+                ]
+            default:
+                return [];
+        }
+    },
+    get_folder_id: (group_id: GroupIds) => {
+        if(group_id == GroupIds.WeaponSkin) {
+            return true;
+        }
+        switch(group_id) {
+            case GroupIds.Agent:
+                return 'agents';
+            case GroupIds.Case:
+                return 'cases';
+            case GroupIds.Currency:
+                return 'currencies';
+            case GroupIds.GloveSkin:
+                return 'gloves';
+            default:
+                return 'null';
         }
     }
 }
