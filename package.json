@@ -14,8 +14,10 @@
   "dependencies": {
     "@types/node": "^24.0.10",
     "axios": "^1.10.0",
+    "canvacord": "^6.0.2",
     "dotenv": "^17.0.1",
     "fs": "^0.0.1-security",
+    "image-size": "^2.0.2",
     "mongodb": "^6.17.0",
     "seyfert": "^3.2.4"
   }

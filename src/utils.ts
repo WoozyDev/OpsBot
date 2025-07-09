@@ -1,6 +1,8 @@
 import { User } from "seyfert";
 import ClientBot from "./structures/ClientBot"
 import { AgentDefinition, CaseDefinition, CurrencyDefinition, EmblemDefinition, GloveSkinDefinition, GroupIds, Item, KeyDefinition, WeaponAnimationDefinition, WeaponSkinDefinition } from "./types";
+import imageSize from "image-size";
+import { ISizeCalculationResult } from "image-size/dist/types/interface";
 
 const known_common_weapon_names = {
     'gsr 1911': ['gsr', 'gsr 1911', 'gsr1911'],
@@ -212,5 +214,29 @@ export default {
             default:
                 return 'null';
         }
+    },
+    get_simple_name: (group_id: GroupIds, uppercaseFirstLetter: boolean = false) => {
+        if(group_id == GroupIds.WeaponSkin) {
+            return uppercaseFirstLetter ? 'Weapon' : 'weapon';
+        }
+        switch(group_id) {
+            case GroupIds.WeaponAnimation:
+                return uppercaseFirstLetter ? 'Animation' : 'animation';
+            case GroupIds.Emblem:
+                return uppercaseFirstLetter ? 'Emblem' : 'emblem';
+            case GroupIds.Agent:
+                return uppercaseFirstLetter ? 'Agent' : 'agent';
+            case GroupIds.Case:
+                return uppercaseFirstLetter ? 'Case' : 'case';
+            case GroupIds.Currency:
+                return uppercaseFirstLetter ? 'Currency' : 'currency';
+            case GroupIds.GloveSkin:
+                return uppercaseFirstLetter ? 'Gloves' : 'gloves';
+            default:
+                return 'null';
+        }
+    },
+    get_image_size_buffer: (buf: Buffer): ISizeCalculationResult => {
+        return imageSize(buf);
     }
 }

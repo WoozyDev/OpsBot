@@ -6,6 +6,8 @@
     "rootDir": "./src",
     "esModuleInterop": true,
     "emitDecoratorMetadata": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+     "jsx": "react",
+     "jsxFactory": "JSX.createElement"
   }
 }

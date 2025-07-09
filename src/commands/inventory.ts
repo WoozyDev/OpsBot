@@ -4,6 +4,7 @@ import { GroupIds, Item, ItemDefinition, WeaponSkinDefinition } from "../types";
 import utils from "../utils";
 import { readFileSync } from "fs";
 import { ButtonStyle } from "seyfert/lib/types";
+import SkinInventoryBuilder from "../builders/SkinInventoryBuilder";
 
 const options = {
     item: createStringOption({
@@ -48,6 +49,18 @@ export default class InventoryCommand extends Command {
                 }
             }
 
+            if(!_item) {
+                for (let group of ClientBot.items) {
+                    if(item.toLowerCase().startsWith('gloves') ? group.name == 'GloveSkin' : item.toLowerCase().startsWith(group.name.toLowerCase())) {
+                        _item = group.items.find(a => a.name.toLowerCase().includes(item.slice((item.toLowerCase().startsWith('gloves') ? 'gloves ' : group.name).length + 1, item.length).toLowerCase()));
+                        if(_item) {
+                            groupId = group.id;
+                            break;
+                        }
+                    }
+                }
+            }
+
             if (!_item) {
                 for (let group of ClientBot.items) {
                     _item = group.items.find(a => a.name.toLowerCase().includes(item.toLowerCase()));
@@ -64,24 +77,16 @@ export default class InventoryCommand extends Command {
             }
 
             // // item found
-            if (!userData.inventory[groupId.toString()] || !userData.inventory[groupId.toString()][_item.id.toString()]) {
-                await context.editOrReply({ content: 'You don\'t have such item in your inventory!' });
-                return;
-            }
+            // if (!userData.inventory[groupId.toString()] || !userData.inventory[groupId.toString()][_item.id.toString()]) {
+            //     await context.editOrReply({ content: 'You don\'t have such item in your inventory!' });
+            //     return;
+            // }
 
-            let att = new AttachmentBuilder({ type: 'buffer', filename: 'image.png', resolvable: readFileSync(`./skin_images/${utils.get_folder_id(groupId) == true ? (_item as WeaponSkinDefinition).weapon_id : utils.get_folder_id(groupId)}/${_item.id}.png`) });
+            let i = await (new SkinInventoryBuilder(groupId, _item)).build({format:'png'});
 
-            let embed = new Embed()
-                .setTitle(utils.get_item_name(groupId, _item.id))
-                .setColor("Green")
-                .setTimestamp()
-                .setFields([
-                    { name: `Category`, value: utils.get_category_name(groupId), inline: true },
-                    ...(utils.get_inventory_fields(groupId, _item) as any[])
-                ])
-                .setImage(att ? `attachment://image.png` : undefined)
+            let att = new AttachmentBuilder({filename:'skin-view.png', resolvable: i, type:'buffer' });
 
-            await context.editOrReply({ embeds: [embed], files: [att] });
+            await context.editOrReply({ files: [att] });
             return;
         }
 

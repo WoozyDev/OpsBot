@@ -31,8 +31,8 @@ export default class MarketSystem {
                     ClientBot._users.findOne({
                         id: listing.filled_by
                     }).then(userData => {
-                        if (!userData.inventory[request.item.group_id]) userData.inventory[request.item.group_id] = {};
-                        userData.inventory[request.item.group_id][request.item.id] = (userData.inventory[request.item.group_id][request.item.id] ?? 0) + 1;
+                        if (!userData.inventory[request.item.group_id.toString()]) userData.inventory[request.item.group_id.toString()] = {};
+                        userData.inventory[request.item.group_id.toString()][request.item.id.toString()] = (userData.inventory[request.item.group_id.toString()][request.item.id.toString()] ?? 0) + 1;
 
                         ClientBot._users.updateOne({
                             id: listing.creator.user_id
@@ -77,8 +77,9 @@ export default class MarketSystem {
                     ClientBot._users.findOne({
                         id: listing.creator.user_id
                     }).then(userData => {
-                        if (!userData.inventory[request.item.group_id]) userData.inventory[request.item.group_id] = {};
-                        userData.inventory[request.item.group_id][request.item.id] = (userData.inventory[request.item.group_id][request.item.id] ?? 0) + 1;
+                        if (!userData.inventory[request.item.group_id.toString()]) userData.inventory[request.item.group_id.toString()] = {};
+                        userData.inventory[request.item.group_id.toString()][request.item.id.toString()] = (userData.inventory[request.item.group_id.toString()][request.item.id.toString()] ?? 0) + 1;
+
                         ClientBot._users.updateOne({
                             id: listing.creator.user_id
                         }, {
