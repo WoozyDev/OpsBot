@@ -12,8 +12,10 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^24.0.10",
     "axios": "^1.10.0",
+    "better-sqlite3": "^12.2.0",
     "canvacord": "^6.0.2",
     "dotenv": "^17.0.1",
     "fs": "^0.0.1-security",

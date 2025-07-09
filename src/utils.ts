@@ -161,7 +161,7 @@ export default {
                     { name: 'Weapon', value: _animation.display_header.split(' ').map(a => a.charAt(0).toUpperCase() + a.slice(1).toLowerCase()).join(' '), inline: true },
                     { name: 'Name', value: _animation.display_name.split(' ').map(a => a.charAt(0).toUpperCase() + a.slice(1).toLowerCase()).join(' '), inline: true },
                     { name: 'Type', value: _animation.animation_slot == 5 ? 'Reload' : _animation.animation_slot == 4 ? 'Inspect' : 'Unknown', inline: true },
-                    { name: 'For Teams', value: _animation.faction_target == 1 ? 'CTs' : _weaponSkin.faction_target == 2 ? 'Ts' : _weaponSkin.faction_target == 3 ? 'All Teams' : 'Unknown', inline: true },
+                    { name: 'For Teams', value: _animation.faction_target == 1 ? 'CTs' : _animation.faction_target == 2 ? 'Ts' : _animation.faction_target == 3 ? 'All Teams' : 'Unknown', inline: true },
                     { name: 'Marketplace', value: _animation.is_marketable ? `✅` : `❌`, inline: true }
                 ];
             case GroupIds.Case:
@@ -176,7 +176,7 @@ export default {
                 var _gloveSkin = item as GloveSkinDefinition;
                 return [
                     { name: 'Name', value: _gloveSkin.display_name.split(' ').map(a => a.charAt(0).toUpperCase() + a.slice(1).toLowerCase()).join(' '), inline: true },
-                    { name: 'For Teams', value: _gloveSkin.faction_target == 1 ? 'CTs' : _weaponSkin.faction_target == 2 ? 'Ts' : _weaponSkin.faction_target == 3 ? 'All Teams' : 'Unknown', inline: true },
+                    { name: 'For Teams', value: _gloveSkin.faction_target == 1 ? 'CTs' : _gloveSkin.faction_target == 2 ? 'Ts' : _gloveSkin.faction_target == 3 ? 'All Teams' : 'Unknown', inline: true },
                     { name: 'Tier', value: _gloveSkin.tier, inline: true },
                     { name: 'Marketplace', value: _gloveSkin.is_marketable ? `✅` : `❌`, inline: true },
                 ]
@@ -184,7 +184,7 @@ export default {
                 var _agent = item as AgentDefinition;
                 return [
                     { name: 'Name', value: _agent.display_name.split(' ').map(a => a.charAt(0).toUpperCase() + a.slice(1).toLowerCase()).join(' '), inline: true },
-                    { name: 'For Teams', value: _agent.faction_target == 1 ? 'CTs' : _weaponSkin.faction_target == 2 ? 'Ts' : _weaponSkin.faction_target == 3 ? 'All Teams' : 'Unknown', inline: true },
+                    { name: 'For Teams', value: _agent.faction_target == 1 ? 'CTs' : _agent.faction_target == 2 ? 'Ts' : _agent.faction_target == 3 ? 'All Teams' : 'Unknown', inline: true },
                     { name: 'Tier', value: _agent.tier, inline: true },
                     { name: 'Marketplace', value: _agent.is_marketable ? `✅` : `❌`, inline: true },
                 ]

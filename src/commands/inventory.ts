@@ -115,27 +115,31 @@ export default class InventoryCommand extends Command {
         let pagination = async (pageIndex: number) => {
             let [item, groupId] = items[pageIndex];
             if(!item) return;
+            let att = null;
+            let embed = null;
 
-            let att = new AttachmentBuilder({ type: 'buffer', filename: 'image.png', resolvable: readFileSync(`./skin_images/${utils.get_folder_id(groupId) == true ? (item as WeaponSkinDefinition).weapon_id : utils.get_folder_id(groupId)}/${item.id}.png`) });
+            try {
+                let buf = await (new SkinInventoryBuilder(groupId, item)).build({ format:'png' });
+                att = new AttachmentBuilder({ type: 'buffer', filename: 'image.png', resolvable: buf });
+            } catch (err) {
+                embed = new Embed()
+                    .setTitle(utils.get_item_name(groupId, item.id))
+                    .setColor("Green")
+                    .setTimestamp()
+                    .setFields([
+                        { name: `Category`, value: utils.get_category_name(groupId), inline: true },
+                        ...(utils.get_inventory_fields(groupId, item) as any[])
+                    ]);
+            }
 
-            let embed = new Embed()
-                .setTitle(utils.get_item_name(groupId, item.id))
-                .setColor("Green")
-                .setTimestamp()
-                .setFields([
-                    { name: `Category`, value: utils.get_category_name(groupId), inline: true },
-                    ...(utils.get_inventory_fields(groupId, item) as any[])
-                ])
-                .setImage(att ? `attachment://image.png` : undefined);
-
-            let components = [
+            let components = items.length > 1 ? [
                 new ActionRow<Button>()
                     .setComponents([
                         new Button()
                             .setLabel('First')
                             .setCustomId('first')
                             .setDisabled(pageIndex == 0)
-                            .setStyle(ButtonStyle.Secondary),
+                            .setStyle(ButtonStyle.Primary),
                         new Button()
                             .setLabel('Previous')
                             .setCustomId('prev')
@@ -149,21 +153,22 @@ export default class InventoryCommand extends Command {
                             .setLabel('Next')
                             .setCustomId('next')
                             .setDisabled(pageIndex == items.length-1)
-                            .setStyle(ButtonStyle.Danger),
+                            .setStyle(ButtonStyle.Secondary),
                         new Button()
                             .setLabel('Last')
                             .setCustomId('last')
                             .setDisabled(pageIndex == items.length-1)
-                            .setStyle(ButtonStyle.Danger)
+                            .setStyle(ButtonStyle.Primary)
                     ])
-            ]
+            ] : [];
 
-            return await context.editOrReply({ embeds: [embed], files: [att], components }, true);
+            return await context.editOrReply({ embeds: embed ? [embed] : [], files: embed ? [] : [att], attachments: [], components }, true);
         }
 
         let pageIndex = 0;
         let msg = await pagination(pageIndex);
-        msg.createComponentCollector({
+        if(items.length > 1) {
+            msg.createComponentCollector({
                 filter: (i) => i.user.id == context.author.id,
                 timeout: 5 * 60 * 1000, // 5 mins
                 onStop: (reason, refresh) => {
@@ -172,24 +177,28 @@ export default class InventoryCommand extends Command {
                     }
                 }
             }).run(['first', 'prev', 'next', 'last'], (i, stop, refresh) => {
+                i.deferUpdate().catch(()=>{});
                 switch(i.customId) {
                     case 'first':
                         pagination(0);
                         break;
                     case 'prev':
-                        pagination(pageIndex--);
+                        pageIndex--;
+                        pagination(pageIndex);
                         break;
                     case 'stop':
                         stop('stop', refresh);
                         msg.edit({components:[]});
                         break;
                     case 'next':
-                        pagination(pageIndex++);
+                        pageIndex++;
+                        pagination(pageIndex);
                         break;
                     case 'last':
                         pagination(items.length-1);
                         break;
                 }
             })
+        }
     }
 }
