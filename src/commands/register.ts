@@ -43,9 +43,9 @@ export default class RegisterCommand extends Command {
 
         await context.deferReply();
 
-        let existingAccount = await ClientBot._users.find({
+        let existingAccount = await ClientBot._users.findOne({
             _id: context.author.id
-        }).toArray();
+        });
 
         if(existingAccount) {
             await context.editOrReply({
@@ -63,11 +63,11 @@ export default class RegisterCommand extends Command {
         }
 
 
-        let existingUsers = await ClientBot._users.find({
+        let existingUser = await ClientBot._users.findOne({
             game_id: response[0].basicInfo.userID
-        }).toArray();
+        });
 
-        if(existingUsers.length != 0) {
+        if(existingUser) {
             await context.editOrReply({
                 content: `There's already someone registered with that ign!`,
             });
@@ -82,6 +82,12 @@ export default class RegisterCommand extends Command {
             balance: {
                 credits: 200,
                 tokens: 0
+            },
+            cooldowns: {
+                beg: 0,
+                daily: 0,
+                monthly: 0,
+                weekly: 0
             },
             inventory: {},
             market: {},

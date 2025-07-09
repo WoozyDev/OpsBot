@@ -4,6 +4,14 @@ import { AgentDefinition, CaseDefinition, CurrencyDefinition, EmblemDefinition, 
 import imageSize from "image-size";
 import { ISizeCalculationResult } from "image-size/dist/types/interface";
 
+type TimeFormatOptions = {
+    units?: ("hours" | "minutes" | "seconds" | "milliseconds")[];
+    pad?: boolean;
+    compact?: boolean;
+    separator?: string;
+};
+
+
 const known_common_weapon_names = {
     'gsr 1911': ['gsr', 'gsr 1911', 'gsr1911'],
     'mr 96': ['rev', 'revolver', 'mr96', 'mr 96'],
@@ -58,7 +66,7 @@ export default {
     get_discord_user: (userId: string): Promise<User> => {
         return new Promise((resolve, reject) => {
             let cachedUser = ClientBot.instance.cache.users.get(userId);
-            if(cachedUser) {
+            if (cachedUser) {
                 resolve(cachedUser);
                 return;
             }
@@ -68,51 +76,51 @@ export default {
         })
     },
     get_item_name: (group_id: GroupIds, item_id: number) => {
-        if(group_id == GroupIds.WeaponSkin) {
+        if (group_id == GroupIds.WeaponSkin) {
             let item = ClientBot.items.find(a => a.id == group_id).items.find(a => a.id == item_id) as WeaponSkinDefinition;
-            if(!item) return null;
+            if (!item) return null;
             return `${(item.display_header.includes('-') ? item.display_header : (item.display_header.split(' ').map(a => a.charAt(0).toUpperCase() + a.slice(1).toLowerCase()).join(' ')))} ${(item.display_name.includes('-') ? item.display_name : (item.display_name.split(' ').map(a => a.charAt(0).toUpperCase() + a.slice(1).toLowerCase()).join(' ')))}`;
         }
-        if(group_id == GroupIds.GloveSkin) {
+        if (group_id == GroupIds.GloveSkin) {
             let item = ClientBot.items.find(a => a.id == group_id).items.find(a => a.id == item_id) as GloveSkinDefinition;
-            if(!item) return null;
+            if (!item) return null;
             return item.display_name.includes('-') ? item.display_name : (item.display_name.split(' ').map(a => a.charAt(0).toUpperCase() + a.slice(1).toLowerCase()).join(' '));
         }
-        if(group_id == GroupIds.Agent) {
+        if (group_id == GroupIds.Agent) {
             let item = ClientBot.items.find(a => a.id == group_id).items.find(a => a.id == item_id) as AgentDefinition;
-            if(!item) return null;
+            if (!item) return null;
             return item.display_name.includes('-') ? item.display_name : (item.display_name.split(' ').map(a => a.charAt(0).toUpperCase() + a.slice(1).toLowerCase()).join(' '));
         }
-        if(group_id == GroupIds.Emblem) {
+        if (group_id == GroupIds.Emblem) {
             let item = ClientBot.items.find(a => a.id == group_id).items.find(a => a.id == item_id) as EmblemDefinition;
-            if(!item) return null;
+            if (!item) return null;
             return item.display_name.includes('-') ? item.display_name : (item.display_name.split(' ').map(a => a.charAt(0).toUpperCase() + a.slice(1).toLowerCase()).join(' '));
         }
-        if(group_id == GroupIds.WeaponAnimation) {
+        if (group_id == GroupIds.WeaponAnimation) {
             let item = ClientBot.items.find(a => a.id == group_id).items.find(a => a.id == item_id) as WeaponAnimationDefinition;
-            if(!item) return null;
+            if (!item) return null;
             return item.display_name.includes('-') ? item.display_name : (item.display_name.split(' ').map(a => a.charAt(0).toUpperCase() + a.slice(1).toLowerCase()).join(' '));
         }
-        if(group_id == GroupIds.Case) {
+        if (group_id == GroupIds.Case) {
             let item = ClientBot.items.find(a => a.id == group_id).items.find(a => a.id == item_id) as CaseDefinition;
-            if(!item) return null;
+            if (!item) return null;
             return item.display_name.includes('-') ? item.display_name : (item.display_name.split(' ').map(a => a.charAt(0).toUpperCase() + a.slice(1).toLowerCase()).join(' '));
         }
-        if(group_id == GroupIds.Key) {
+        if (group_id == GroupIds.Key) {
             let item = ClientBot.items.find(a => a.id == group_id).items.find(a => a.id == item_id) as KeyDefinition;
-            if(!item) return null;
+            if (!item) return null;
             return item.display_name.includes('-') ? item.display_name : (item.display_name.split(' ').map(a => a.charAt(0).toUpperCase() + a.slice(1).toLowerCase()).join(' '));
         }
-        if(group_id == GroupIds.Currency) {
+        if (group_id == GroupIds.Currency) {
             let item = ClientBot.items.find(a => a.id == group_id).items.find(a => a.id == item_id) as CurrencyDefinition;
-            if(!item) return null;
+            if (!item) return null;
             return item.display_name.includes('-') ? item.display_name : (item.display_name.split(' ').map(a => a.charAt(0).toUpperCase() + a.slice(1).toLowerCase()).join(' '));
         }
 
         return null;
     },
     get_category_name: (group_id: GroupIds) => {
-        switch(group_id) {
+        switch (group_id) {
             case GroupIds.Currency:
                 return 'Currencies';
             case GroupIds.WeaponSkin:
@@ -134,7 +142,7 @@ export default {
         }
     },
     get_inventory_fields: (group_id: GroupIds, item: Item) => {
-        switch(group_id) {
+        switch (group_id) {
             case GroupIds.Currency:
                 var _currency = item as CurrencyDefinition;
                 return [
@@ -168,8 +176,8 @@ export default {
                 var _case = item as CaseDefinition;
                 return [
                     { name: 'Name', value: _case.display_name.split(' ').map(a => a.charAt(0).toUpperCase() + a.slice(1).toLowerCase()).join(' '), inline: true },
-                    { name: 'Included Tiers', value: _case.roll_data[0].drop_chances.map((a,i) => ([a, `${i+1}`])).filter(a => a[0] != 0 ).map(a => a[1]).join(', '), inline: true },
-                    { name: 'Drop Chances', value: _case.roll_data[0].drop_chances.map((a,i) => `> **Tier ${i+1}:** ${(a/100).toFixed(2)}%`).join('\n'), inline: true },
+                    { name: 'Included Tiers', value: _case.roll_data[0].drop_chances.map((a, i) => ([a, `${i + 1}`])).filter(a => a[0] != 0).map(a => a[1]).join(', '), inline: true },
+                    { name: 'Drop Chances', value: _case.roll_data[0].drop_chances.map((a, i) => `> **Tier ${i + 1}:** ${(a / 100).toFixed(2)}%`).join('\n'), inline: true },
                     { name: 'Marketplace', value: _case.is_marketable ? `✅` : `❌`, inline: true },
                 ]
             case GroupIds.GloveSkin:
@@ -199,10 +207,10 @@ export default {
         }
     },
     get_folder_id: (group_id: GroupIds) => {
-        if(group_id == GroupIds.WeaponSkin) {
+        if (group_id == GroupIds.WeaponSkin) {
             return true;
         }
-        switch(group_id) {
+        switch (group_id) {
             case GroupIds.Agent:
                 return 'agents';
             case GroupIds.Case:
@@ -216,10 +224,10 @@ export default {
         }
     },
     get_simple_name: (group_id: GroupIds, uppercaseFirstLetter: boolean = false) => {
-        if(group_id == GroupIds.WeaponSkin) {
+        if (group_id == GroupIds.WeaponSkin) {
             return uppercaseFirstLetter ? 'Weapon' : 'weapon';
         }
-        switch(group_id) {
+        switch (group_id) {
             case GroupIds.WeaponAnimation:
                 return uppercaseFirstLetter ? 'Animation' : 'animation';
             case GroupIds.Emblem:
@@ -238,5 +246,40 @@ export default {
     },
     get_image_size_buffer: (buf: Buffer): ISizeCalculationResult => {
         return imageSize(buf);
+    },
+    transform_milliseconds_into_readable_format: (milliseconds: number, short_form?: boolean) => {
+        const seconds = Math.floor(milliseconds / 1000);
+        const years = Math.floor(seconds / 31536000);
+        const months = Math.floor((seconds % 31536000) / 2592000);
+        const days = Math.floor(seconds / 86400);
+        const hours = Math.floor((seconds % 86400) / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const remainingSeconds = seconds % 60;
+        const timeParts = [];
+        if (years > 0) {
+            timeParts.push(`${years}${years === 1 ? ' year' : ' years'}`);
+            if(short_form) return timeParts.join(' ');
+        }
+        if (months > 0) {
+            timeParts.push(`${months}${months === 1 ? ' month' : ' months'}`);
+            if(short_form) return timeParts.join(' ');
+        }
+        if (days > 0) {
+            timeParts.push(`${days}${days === 1 ? ' day' : ' days'}`);
+            if(short_form) return timeParts.join(' ');
+        }
+        if (hours > 0) {
+            timeParts.push(`${hours}${hours === 1 ? 'hour' : ' hours'}`);
+            if(short_form) return timeParts.join(' ');
+        }
+        if (minutes > 0) {
+            timeParts.push(`${minutes}${minutes === 1 ? ' minute' : ' minutes'}`);
+            if(short_form) return timeParts.join(' ');
+        }
+        if (remainingSeconds > 0) {
+            timeParts.push(`${remainingSeconds}${remainingSeconds === 1 ? ' second' : ' second'}`);
+            if(short_form) return timeParts.join(' ');
+        }
+        return timeParts.join(' ');
     }
 }

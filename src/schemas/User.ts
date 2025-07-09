@@ -11,6 +11,12 @@ export type User =
         credits: number;
         tokens: number;
     };
+    cooldowns: {
+        beg: number;
+        daily: number;
+        weekly: number;
+        monthly: number;
+    };
     inventory: Inventory;
     market: {
         sell_requests: MarketUserSellRequest[];
