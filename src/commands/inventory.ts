@@ -76,11 +76,10 @@ export default class InventoryCommand extends Command {
                 return;
             }
 
-            // // item found
-            // if (!userData.inventory[groupId.toString()] || !userData.inventory[groupId.toString()][_item.id.toString()]) {
-            //     await context.editOrReply({ content: 'You don\'t have such item in your inventory!' });
-            //     return;
-            // }
+            if (!userData.inventory[groupId.toString()] || !userData.inventory[groupId.toString()][_item.id.toString()]) {
+                await context.editOrReply({ content: 'You don\'t have such item in your inventory!' });
+                return;
+            }
 
             let i = await (new SkinInventoryBuilder(groupId, _item)).build({format:'png'});
 
