@@ -16,7 +16,7 @@ const options = {
         required: true,
         choices: Object.values(Region).filter(a => typeof a == 'string').map(a => ({
             name: (a.includes('_') ? a.split('_').join(' ') : a).split(' ').map(a => a.charAt(0).toUpperCase() + a.slice(1).toLowerCase()).join(' '),
-            value: Region[a].toString()
+            value: (a.includes('_') ? a.split('_').join(' ') : a).split(' ').map(a => a.charAt(0).toUpperCase() + a.slice(1).toLowerCase()).join(' ')
         }))
     })
 }
@@ -29,9 +29,11 @@ const options = {
 export default class RegisterCommand extends Command {
     async run(context: CommandContext<typeof options>) {
         let ign = context.options.ign as string;
-        let region = parseInt(context.options.region) as Region;
+        let regionStr = context.options.region as string;
+        let regionInt = Region[regionStr.toUpperCase().split(' ').join('_')] as number;
+        console.log(regionStr, regionInt);
 
-        if(!Region[region]) {
+        if(regionInt == undefined) {
             await context.editOrReply({
                 content: `You have specified a invalid region!`,
                 flags: MessageFlags.Ephemeral
@@ -41,6 +43,17 @@ export default class RegisterCommand extends Command {
 
         await context.deferReply();
 
+        let existingAccount = await ClientBot._users.find({
+            _id: context.author.id
+        }).toArray();
+
+        if(existingAccount) {
+            await context.editOrReply({
+                content: `You have already registered!`
+            });
+            return;
+        }
+
         let [response, code] = await GameAPI.search([ign]);
         if(code != ResponseCode.OK) {
             await context.editOrReply({
@@ -48,6 +61,7 @@ export default class RegisterCommand extends Command {
             });
             return;
         }
+
 
         let existingUsers = await ClientBot._users.find({
             game_id: response[0].basicInfo.userID
@@ -61,7 +75,7 @@ export default class RegisterCommand extends Command {
         }
 
         let user = {
-            _id: context.author.id.toString(),
+            _id: context.author.id,
             id: context.author.id,
             game_id: response[0].basicInfo.userID,
             ign: response[0].basicInfo.name,
@@ -71,7 +85,7 @@ export default class RegisterCommand extends Command {
             },
             inventory: {},
             market: {},
-            region
+            region: regionInt
         } as User;
 
         await ClientBot._users.insertOne(user);
